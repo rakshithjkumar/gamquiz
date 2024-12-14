@@ -203,6 +203,7 @@
         .no-focus:focus, .no-focus:active {
             background-color: #007BFF;  
             box-shadow: none; 
+            outline: none;
         }
 
         .option:focus, .option:active {
@@ -414,11 +415,15 @@
                 }
             });
 
-            const selectedButton = options[selectedOption];
-            selectedButton.classList.add('no-focus');  
-            selectedButton.blur();
+
+            options.forEach(option => {
+                option.classList.add('no-focus');
+                option.blur(); 
+            });
+
             setTimeout(nextQuestion, 1000);
-}
+        }
+
 
 
         function nextQuestion() {
