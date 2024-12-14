@@ -372,6 +372,8 @@
                 }
             });
 
+            const selectedButton = options[selectedOption];
+            selectedButton.blur();
             setTimeout(nextQuestion, 1000);
         }
 
