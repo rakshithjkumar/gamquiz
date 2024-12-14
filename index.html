@@ -145,7 +145,7 @@
 
         .progress-bar {
             height: 100%;
-            width: 100%;
+            width: 0%;
             background-color: #007BFF;
             transition: width 1s linear;
         }
@@ -292,6 +292,11 @@
                 question: "I track the economy, large and small,\nGDP and inflation, I measure them all.\nThrough policies fiscal and monetary, I call,\nWhich branch of economics explains it all?",
                 options: ["Microeconomics", "Macroeconomics", "International Economics", "Development Economics"],
                 correct: 1
+            },
+            {
+                question: "I focus on needs from basic to high,\nFrom food to love, to reach the sky.\nI guide employees to find their drive,\nWhich theory helps people thrive?",
+                options: ["Maslow's Hierarchy of Needs", "Herzberg's Two-Factor Theory", "McGregor's Theory X and Y", "Equity Theory"],
+                correct: 0
             }
         ];
 
@@ -307,25 +312,17 @@
         const contextSlide = document.getElementById('context-slide');
         const finalModal = document.getElementById('final-modal');
         const finalScoreElement = document.getElementById('final-score');
-
-        function startQuiz() {
-            contextSlide.style.visibility = 'visible';
-            contextSlide.style.opacity = 1;
-
-            setTimeout(() => {
-                contextSlide.style.opacity = 0;
-                contextSlide.style.visibility = 'hidden';
-                loadQuestion();
-            }, 2000);
-        }
+        let remainingTime = 15;
 
         function loadQuestion() {
             quizContainer.style.visibility = 'visible';
             quizContainer.style.opacity = 1;
-
+            contextSlide.style.visibility = 'hidden';
+            contextSlide.style.opacity = 0;
             const current = questions[currentQuestion];
             questionElement.textContent = current.question;
             optionsElement.innerHTML = '';
+
             current.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.textContent = option;
@@ -337,33 +334,20 @@
             resetTimer();
         }
 
-        function resetTimer() {
-            let timeLeft = 10;
-            timerElement.textContent = `${timeLeft} seconds remaining`;
-            progressBar.style.width = '100%';
-
-            clearInterval(timerInterval);
-
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                if (timeLeft <= 0) {
-                    clearInterval(timerInterval);
-                    nextQuestion();
-                } else {
-                    timerElement.textContent = `${timeLeft} seconds remaining`;
-                    progressBar.style.width = `${(timeLeft / 10) * 100}%`;
-                }
-            }, 1000);
-        }
-
         function checkAnswer(selectedOption) {
             const correctOption = questions[currentQuestion].correct;
+
+            // Clear previously applied classes
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+            });
+
             if (selectedOption === correctOption) {
                 score += 10;
                 scoreElement.textContent = `Score: ${score}`;
             }
 
-            const options = document.querySelectorAll('.option');
             options.forEach((option, index) => {
                 if (index === correctOption) {
                     option.classList.add('correct');
@@ -385,20 +369,37 @@
         }
 
         function showFinalScore() {
-            clearInterval(timerInterval);
-            finalScoreElement.textContent = score;
             finalModal.style.display = 'flex';
+            finalScoreElement.textContent = score;
         }
 
         function restartQuiz() {
-            currentQuestion = 0;
             score = 0;
-            scoreElement.textContent = `Score: ${score}`;
+            currentQuestion = 0;
             finalModal.style.display = 'none';
             loadQuestion();
         }
 
-        startQuiz();
+        function resetTimer() {
+            clearInterval(timerInterval);
+            remainingTime = 15;
+            timerElement.textContent = `${remainingTime} seconds remaining`;
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function updateTimer() {
+            remainingTime--;
+            timerElement.textContent = `${remainingTime} seconds remaining`;
+            progressBar.style.width = `${(15 - remainingTime) * 6.67}%`;
+
+            if (remainingTime <= 0) {
+                clearInterval(timerInterval);
+                nextQuestion();
+            }
+        }
+
+        // Initial loading
+        loadQuestion();
     </script>
 </body>
 </html>
