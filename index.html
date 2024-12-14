@@ -201,7 +201,7 @@
         }
 
         .no-focus:focus, .no-focus:active {
-            background-color: #007BFF !important;  
+            background-color: #007BFF;  
             box-shadow: none; 
         }
 
@@ -415,10 +415,11 @@
             });
 
             const selectedButton = options[selectedOption];
+            selectedButton.classList.add('no-focus');  
             selectedButton.blur();
-            selectedButton.classList.add('no-focus');
             setTimeout(nextQuestion, 1000);
-        }
+}
+
 
         function nextQuestion() {
             currentQuestion++;
