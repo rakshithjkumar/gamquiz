@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Walk Down Memory Lane</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            font-family: 'Arial', sans-serif;
+            height: 100%;
+            background: linear-gradient(to bottom, #f0f4f8, #e3e9f1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+            height: 100%;
+        }
+
+        .quiz-container, .context-container {
+            width: 100%;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            visibility: hidden;
+            margin-top: -35%;
+        }
+
+        .context-container {
+            background-color: #f9fafb;
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .context-container h2 {
+            color: #3a3a3a;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .context-container p {
+            color: #6c757d;
+            font-size: 1.1em;
+            line-height: 1.6;
+            max-width: 90%;
+            margin: 0 auto;
+        }
+
+        .question {
+            font-size: 1.6em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            align-items: center;
+        }
+
+        .option {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .option:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .correct {
+            background-color: #28a745 !important;
+        }
+
+        .incorrect {
+            background-color: #dc3545 !important;
+        }
+
+        .timer {
+            font-size: 1.4em;
+            color: #28a745;
+            font-weight: bold;
+            margin-bottom: 15px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1;
+        }
+
+        .score {
+            font-size: 1.4em;
+            color: #f39c12;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #007BFF;
+            transition: width 1s linear;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .modal h2 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .modal p {
+            font-size: 1.5em;
+            color: #f39c12;
+            margin-bottom: 30px;
+        }
+
+        .modal button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .modal button:hover {
+            background-color: #218838;
+        }
+
+        @media (max-width: 480px) {
+            .quiz-container, .context-container {
+                padding: 20px;
+            }
+
+            .question {
+                font-size: 1.3em;
+            }
+
+            .option {
+                font-size: 1em;
+                padding: 12px 15px;
+            }
+
+            .timer, .score {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="context-slide" class="context-container">
+            <h2>Welcome to the Quiz!</h2>
+            <p>Today, we are taking you on a journey through the halls and classrooms where you built the foundation of your career. Along the way, you will encounter riddles—throwbacks to your MBA lessons. Solve them, and relive the wisdom that shaped you!</p>
+        </div>
+
+        <div class="quiz-container" id="quiz-container">
+            <div id="timer" class="timer">15 seconds remaining</div>
+            <div id="score" class="score">Score: 0</div>
+            <div class="progress-bar-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <div id="question" class="question">Loading question...</div>
+            <div id="options" class="options"></div>
+        </div>
+    </div>
+
+    <div id="final-modal" class="modal">
+        <div class="modal-content">
+            <h2>Quiz Over!</h2>
+            <p>Your final score is: <span id="final-score"></span></p>
+            <button onclick="restartQuiz()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "I am the backbone of market strategy,\nTargeting the right group, it’s my specialty.\nSegment, position, and understand the race,\nWhich theory ensures the product finds its place?",
+                options: ["4P’s", "Branding", "SWOT Analysis", "STP Framework"],
+                correct: 3
+            },
+            {
+                question: "In the corporate world, I make you aware,\nA director’s duty and shareholder’s care.\nWith my act, business stays fair,\nWhat governs companies here and there?",
+                options: ["Consumer Protection Act", "Companies Act", "Competition Act", "Contract Law"],
+                correct: 1
+            },
+            {
+                question: "I help in proving what’s true or not,\nT-tests and p-values, I'm in the plot.\nIf you test your null, I’ll help you measure,\nWhat concept makes hypotheses a treasure?",
+                options: ["Regression", "Hypothesis Testing", "Probability", "ANOVA"],
+                correct: 1
+            },
+            {
+                question: "In the world of accounting, I balance the game,\nAssets and liabilities are my claim to fame.\nEquity’s involved, but what’s my name,\nWhich sheet do I represent, always the same?",
+                options: ["Profit and Loss Statement", "Balance Sheet", "Cash Flow Statement", "Trial Balance"],
+                correct: 1
+            },
+            {
+                question: "I’m the pulse of the market, you know my kind,\nA place where prices of shares are defined.\nWhat’s my name, can you recall,\nWhere bulls and bears are having a ball?",
+                options: ["Mutual Funds", "Stock Exchange", "Derivatives Market", "Commodities Market"],
+                correct: 1
+            },
+            {
+                question: "I measure attitudes and how teams feel,\nKeeping the workplace emotionally real.\nIf motivation drops, I reveal the deal,\nWhat am I, that dynamics reveal?",
+                options: ["Emotional Intelligence", "Leadership Skills", "Team Building", "Conflict Management"],
+                correct: 0
+            },
+            {
+                question: "I’m a leader, not a dictator, they say,\nHelping teams succeed in every way.\nTransform or transactional, I clear the gray,\nWhat style defines this leadership play?",
+                options: ["Transactional Leadership", "Laissez-Faire Leadership", "Transformational Leadership", "Charismatic Leadership"],
+                correct: 2
+            },
+            {
+                question: "I optimize time, resources, and cost,\nIn the maze of logistics, I’m never lost.\nUsing models and methods, what’s my host,\nWhich technique leads me most?",
+                options: ["Supply Chain", "Linear Programming", "Inventory Management", "Queue Theory"],
+                correct: 1
+            },
+            {
+                question: "I track the economy, large and small,\nGDP and inflation, I measure them all.\nThrough policies fiscal and monetary, I call,\nWhich branch of economics explains it all?",
+                options: ["Microeconomics", "Macroeconomics", "International Economics", "Development Economics"],
+                correct: 1
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timerInterval;
+        const timerElement = document.getElementById('timer');
+        const scoreElement = document.getElementById('score');
+        const progressBar = document.getElementById('progress-bar');
+        const quizContainer = document.getElementById('quiz-container');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const contextSlide = document.getElementById('context-slide');
+        const finalModal = document.getElementById('final-modal');
+        const finalScoreElement = document.getElementById('final-score');
+
+        function startQuiz() {
+            contextSlide.style.visibility = 'visible';
+            contextSlide.style.opacity = 1;
+
+            setTimeout(() => {
+                contextSlide.style.opacity = 0;
+                contextSlide.style.visibility = 'hidden';
+                loadQuestion();
+            }, 2000);
+        }
+
+        function loadQuestion() {
+            quizContainer.style.visibility = 'visible';
+            quizContainer.style.opacity = 1;
+
+            const current = questions[currentQuestion];
+            questionElement.textContent = current.question;
+            optionsElement.innerHTML = '';
+            current.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'option';
+                button.onclick = () => checkAnswer(index);
+                optionsElement.appendChild(button);
+            });
+
+            resetTimer();
+        }
+
+        function resetTimer() {
+            let timeLeft = 10;
+            timerElement.textContent = `${timeLeft} seconds remaining`;
+            progressBar.style.width = '100%';
+
+            clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    nextQuestion();
+                } else {
+                    timerElement.textContent = `${timeLeft} seconds remaining`;
+                    progressBar.style.width = `${(timeLeft / 10) * 100}%`;
+                }
+            }, 1000);
+        }
+
+        function checkAnswer(selectedOption) {
+            const correctOption = questions[currentQuestion].correct;
+            if (selectedOption === correctOption) {
+                score += 10;
+                scoreElement.textContent = `Score: ${score}`;
+            }
+
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                if (index === correctOption) {
+                    option.classList.add('correct');
+                } else {
+                    option.classList.add('incorrect');
+                }
+            });
+
+            setTimeout(nextQuestion, 1000);
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                showFinalScore();
+            }
+        }
+
+        function showFinalScore() {
+            clearInterval(timerInterval);
+            finalScoreElement.textContent = score;
+            finalModal.style.display = 'flex';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            scoreElement.textContent = `Score: ${score}`;
+            finalModal.style.display = 'none';
+            loadQuestion();
+        }
+
+        startQuiz();
+    </script>
+</body>
+</html>
