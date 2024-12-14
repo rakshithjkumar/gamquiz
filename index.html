@@ -200,6 +200,16 @@
             background-color: #218838;
         }
 
+        .no-focus:focus, .no-focus:active {
+            background-color: #007BFF !important;  
+            box-shadow: none; 
+        }
+
+        .option:focus, .option:active {
+            outline: none; 
+            background-color: #007BFF;
+        }
+
         @media (max-width: 480px) {
             .quiz-container, .context-container {
                 padding: 20px;
@@ -374,6 +384,7 @@
 
             const selectedButton = options[selectedOption];
             selectedButton.blur();
+            selectedButton.classList.add('no-focus');
             setTimeout(nextQuestion, 1000);
         }
 
